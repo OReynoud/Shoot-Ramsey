@@ -140,10 +140,11 @@ public class Gordon : MonoBehaviour
         for (int i = 0; i < saladAmount; i++)
         {
             var angleSpacing = saladArc / saladAmount;
-            var currentAngle = maxAngle - (angleSpacing * i);
-            var relativePos = PlayerMouvement.instance.transform.position - gun.position;
-            gun.rotation = Quaternion.LookRotation(relativePos, Vector3.forward);
-            gun.rotation = Quaternion.Euler(0,0,currentAngle + gun.rotation.eulerAngles.z);
+            var spacing = maxAngle - (angleSpacing * i);
+            var relativePos = gun.position - PlayerMouvement.instance.transform.position;
+            var normedRelative = relativePos.normalized;
+            var relativeAngle = Mathf.Atan2(normedRelative.y, normedRelative.x) * Mathf.Rad2Deg;
+            gun.rotation = Quaternion.AngleAxis(relativeAngle + spacing,Vector3.forward);
             Instantiate(saladPrefab, gun.position, gun.rotation);
         }
     }
