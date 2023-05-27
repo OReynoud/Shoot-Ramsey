@@ -8,7 +8,8 @@ public class Steaks : BezierPathing
     // Start is called before the first frame update
     void Start()
     {
-        anim.SetFloat("Speed",0.1f * Random.Range(-10,11));
+        anim.SetFloat("Speed",0.1f * Random.Range(-10,11) + 0.5f);
+        speed = Gordon.instance.steakSpeed;
     }
 
     // Update is called once per frame
