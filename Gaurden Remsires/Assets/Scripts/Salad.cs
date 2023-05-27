@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Steaks : BezierPathing
+public class Salad : BezierPathing
 {
     public Animator anim;
     // Start is called before the first frame update
@@ -14,7 +14,7 @@ public class Steaks : BezierPathing
             randomValue = 1;
         }
         anim.SetFloat("Speed", randomValue);
-        speed = Gordon.instance.steakSpeed;
+        speed = Gordon.instance.saladSpeed;
     }
 
     // Update is called once per frame

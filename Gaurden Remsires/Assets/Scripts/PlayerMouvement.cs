@@ -8,6 +8,7 @@ public class PlayerMouvement : MonoBehaviour
     public static PlayerMouvement instance;
     public Vector3 playerDir;
     public float speed;
+    public Transform gunPoint;
 
     public float shootingRate;
     private float shootingTimer;
@@ -22,6 +23,10 @@ public class PlayerMouvement : MonoBehaviour
     public Vector2 minBounds;
 
     public PlayerInputs controls;
+
+    public Animator characterAnimator;
+
+    public Animator gunAnimator;
     // Start is called before the first frame update
     void Awake()
     {
@@ -36,6 +41,7 @@ public class PlayerMouvement : MonoBehaviour
         controls.Player.Move.performed += Move;
         controls.Player.Shoot.performed += Shoot;
         currentHealth = maxHealth;
+        gunAnimator.SetFloat("Speed",1/0.2f);
     }
 
     // Update is called once per frame
@@ -79,7 +85,16 @@ public class PlayerMouvement : MonoBehaviour
         if (controls.Player.Shoot.IsPressed() && shootingTimer <= 0)
         {
             shootingTimer = shootingRate;
-            Instantiate(bulletPrefab.gameObject, transform.position + Vector3.right * 0.5f, Quaternion.identity);
+            Instantiate(bulletPrefab.gameObject, gunPoint.position, Quaternion.identity);
+        }
+
+        if (controls.Player.Shoot.IsPressed())
+        {
+            gunAnimator.SetBool("Attacking",true);
+        }
+        else
+        {
+            gunAnimator.SetBool("Attacking",false);
         }
     }
 
@@ -90,5 +105,6 @@ public class PlayerMouvement : MonoBehaviour
 
     void Shoot(InputAction.CallbackContext context)
     {
+        
     }
 }

@@ -21,8 +21,12 @@ public class Gordon : MonoBehaviour
     [BoxGroup("Gordon Movement")] public Vector3 bot1;
     [BoxGroup("Gordon Movement")] public Vector3 bot2;
     [BoxGroup("Gordon Movement")] public Vector3 bot3;
+    [BoxGroup("Plain Salad")] public GameObject saladPrefab;
     [BoxGroup("Plain Salad")] public int saladAmount;
     [BoxGroup("Plain Salad")] public float saladSpeed;
+    [BoxGroup("Plain Salad")] public float saladArc;
+    [BoxGroup("Plain Salad")] public float saladWaves;
+    [BoxGroup("Plain Salad")] public float delayBetweenSaladWaves;
     [BoxGroup("R A W  Steak")] public GameObject steakPrefab;
     [BoxGroup("R A W  Steak")] public float steakSpeed;
     [BoxGroup("R A W  Steak")] public int steakAmount;
@@ -50,7 +54,7 @@ public class Gordon : MonoBehaviour
         positions.Add(bot1);
         positions.Add(bot2);
         positions.Add(bot3);
-        ThrowSteaks();
+        ThrowSalad();
     }
 
     // Update is called once per frame
@@ -88,6 +92,8 @@ public class Gordon : MonoBehaviour
         transform.DOMove(posToMove, moveSpeed);
     }
 
+    #region Steaks
+
     void ThrowSteaks()
     {
         MoveToPos(positions[Random.Range(0,positions.Count)]);
@@ -111,4 +117,34 @@ public class Gordon : MonoBehaviour
         Instantiate(steakPrefab, gun.position, gun.rotation);
     }
 
+    #endregion
+
+    void ThrowSalad()
+    {
+        MoveToPos(positions[Random.Range(0,positions.Count)]);
+        transform.DOScale(transform.localScale, moveSpeed).OnComplete(() =>
+        {
+            for (int i = 0; i < saladWaves; i++)
+            {
+                
+                StartCoroutine(SpawnSalad(delayBetweenSaladWaves* i));
+            }
+        });
+    }
+    
+    IEnumerator SpawnSalad(float spawnDelay)
+    {
+        yield return new WaitForSeconds(spawnDelay);
+        
+        var maxAngle = saladArc * 0.5f;
+        for (int i = 0; i < saladAmount; i++)
+        {
+            var angleSpacing = saladArc / saladAmount;
+            var currentAngle = maxAngle - (angleSpacing * i);
+            var relativePos = PlayerMouvement.instance.transform.position - gun.position;
+            gun.rotation = Quaternion.LookRotation(relativePos, Vector3.forward);
+            gun.rotation = Quaternion.Euler(0,0,currentAngle + gun.rotation.eulerAngles.z);
+            Instantiate(saladPrefab, gun.position, gun.rotation);
+        }
+    }
 }
