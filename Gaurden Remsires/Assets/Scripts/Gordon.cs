@@ -5,6 +5,7 @@ using DG.Tweening;
 using NaughtyAttributes;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.UI;
 using Random = UnityEngine.Random;
 
 public class Gordon : MonoBehaviour
@@ -12,6 +13,7 @@ public class Gordon : MonoBehaviour
     public static Gordon instance;
     public Transform gun;
     private List<Vector3> positions = new List<Vector3>();
+    public Image healthBar;
     [Foldout("Gordon Movement")] public float moveSpeed;
     [Foldout("Gordon Movement")] public Vector3 top1;
     [Foldout("Gordon Movement")] public Vector3 top2;
@@ -54,6 +56,7 @@ public class Gordon : MonoBehaviour
     private GameObject currentWholeBread;
     [HideInInspector] public Vector3 explosionPos;
     [Foldout("rAaAw Salmon")] public GameObject salmonPrefab;
+    [Foldout("rAaAw Salmon")] public GameObject salmonExplosionPrefab;
     [Foldout("rAaAw Salmon")] public Transform[] salmonPositions;
     [Foldout("rAaAw Salmon")] public int salmonAmount;
     [Foldout("rAaAw Salmon")] public float salmonMovingTime;
@@ -70,6 +73,7 @@ public class Gordon : MonoBehaviour
     [Foldout("Sound")] public AudioClip[] saladWarning;
     [Foldout("Sound")] public AudioClip[] breadWarning;
     [Foldout("Sound")] public AudioClip[] salmonWarning;
+    [Foldout("Sound")] public AudioClip deathSound;
     [Foldout("Sound")] public float delayForSound;
     public int maxHealth;
     public int currentHealth;
@@ -78,7 +82,10 @@ public class Gordon : MonoBehaviour
     public float atkSpeed2;
     private float atkTimer;
     public bool canAttack;
-    
+    private Collider2D coll;
+    public bool isDying;
+    public float timeBetweenExplosions;
+
     // Start is called before the first frame update
     void Awake()
     {
@@ -87,6 +94,7 @@ public class Gordon : MonoBehaviour
             DestroyImmediate(this);
         }
         instance = this;
+        coll = GetComponent<Collider2D>();
     }
 
     void Start()
@@ -107,6 +115,11 @@ public class Gordon : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
+        if (currentHealth <= 0)
+        {
+            return;
+        }
+        healthBar.fillAmount = (float)currentHealth / maxHealth;
         if (currentHealth < maxHealth * 0.5f && aboveHalfHealth)
         {
             aboveHalfHealth = false;
@@ -159,9 +172,14 @@ public class Gordon : MonoBehaviour
     {
         if (col.gameObject.CompareTag("Bullet"))
         {
-            //reduce Gordons hp
+            currentHealth--;
             Debug.Log("hit Ramsay");
             Destroy(col.gameObject);
+        }
+
+        if (currentHealth <= 0)
+        {
+            Win();
         }
     }
 
@@ -174,7 +192,35 @@ public class Gordon : MonoBehaviour
         yield return new WaitForSeconds(delay);
         canAttack = true;
     }
+    void Win()
+    {
+        coll.enabled = false;
+        PlayerMouvement.instance.coll.enabled = false;
+        isDying = true;
+        StartCoroutine(RequestExplosions());
+        source.Stop();
+        source.clip = deathSound;
+        source.Play();
+        transform.DOShakeScale(4, Vector3.right,100).OnComplete((() =>
+        {
+            isDying = false;
+            transform.DOMoveX(transform.position.x + 10, 1);
+            PlayerMouvement.instance.winScreen.DOColor(Color.white, 0.5f);
+            PlayerMouvement.instance.musicChannel.Stop();
+            PlayerMouvement.instance.musicChannel.clip = PlayerMouvement.instance.winMusic;
+            PlayerMouvement.instance.musicChannel.volume = 0.3f;
+            PlayerMouvement.instance.musicChannel.Play();
+        }));
+    }
 
+    IEnumerator RequestExplosions()
+    {
+        while (isDying)
+        {
+            yield return new WaitForSeconds(timeBetweenExplosions);
+            Instantiate(salmonExplosionPrefab, (Vector3)Random.insideUnitCircle + transform.position, Quaternion.identity);
+        }
+    }
     #region Steaks
 
     void ThrowSteaks()

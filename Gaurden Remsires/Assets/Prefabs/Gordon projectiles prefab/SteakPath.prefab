@@ -658,7 +658,7 @@ GameObject:
   - component: {fileID: 7554705391036959112}
   m_Layer: 0
   m_Name: SteakPath
-  m_TagString: Untagged
+  m_TagString: Ennemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -809,6 +809,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: RawSteak (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6334789233922777291, guid: dcfa5741f25bd164cb4cafef093b1bd4, type: 3}
+      propertyPath: m_TagString
+      value: Ennemy
+      objectReference: {fileID: 0}
     - target: {fileID: 6334789233922777294, guid: dcfa5741f25bd164cb4cafef093b1bd4, type: 3}
       propertyPath: m_RootOrder
       value: 0
@@ -877,3 +881,34 @@ Animator:
   m_CorrespondingSourceObject: {fileID: 6334789233922777292, guid: dcfa5741f25bd164cb4cafef093b1bd4, type: 3}
   m_PrefabInstance: {fileID: 7554705390639476543}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &4557086160931049460 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 6334789233922777291, guid: dcfa5741f25bd164cb4cafef093b1bd4, type: 3}
+  m_PrefabInstance: {fileID: 7554705390639476543}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &6687459523450402943
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4557086160931049460}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.18, y: 0.08}
+    newSize: {x: 0.18, y: 0.08}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.18, y: 0.08}
+  m_EdgeRadius: 0

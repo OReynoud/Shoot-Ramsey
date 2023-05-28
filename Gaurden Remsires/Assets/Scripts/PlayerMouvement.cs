@@ -1,7 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
+
+using System;
+using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class PlayerMouvement : MonoBehaviour
 {
@@ -27,6 +30,31 @@ public class PlayerMouvement : MonoBehaviour
     public Animator characterAnimator;
 
     public Animator gunAnimator;
+
+    public float invincibilityTimer = 0;
+
+    public Collider2D coll;
+
+    public GameObject youDiedText;
+
+    public GameObject restartButton;
+    public Image winScreen;
+
+    public Image[] healthBar;
+
+    public bool isDead = false;
+
+    public AudioClip hurt;
+
+    public AudioClip shoot;
+
+    public AudioClip baseMusic;
+
+    public AudioClip winMusic;
+
+    public AudioSource musicChannel;
+
+    public AudioSource playerChannel;
     // Start is called before the first frame update
     void Awake()
     {
@@ -42,12 +70,32 @@ public class PlayerMouvement : MonoBehaviour
         controls.Player.Shoot.performed += Shoot;
         currentHealth = maxHealth;
         gunAnimator.SetFloat("Speed",1/0.2f);
+        coll = GetComponent<Collider2D>();
+    }
+
+    private void Start()
+    {
+        musicChannel.Stop();
+        musicChannel.clip = baseMusic;
+        musicChannel.Play();
+        musicChannel.volume = 0.15f;
     }
 
     // Update is called once per frame
     void FixedUpdate()
     {
-        
+        if (isDead)
+        {
+            return;
+        }
+        if (invincibilityTimer >= 0)
+        {
+            invincibilityTimer -= Time.fixedDeltaTime;
+        }
+        else
+        {
+            characterAnimator.SetBool("TakingDamage",false);
+        }
         MovePlayer();
         ShootMissiles();
     }
@@ -86,6 +134,9 @@ public class PlayerMouvement : MonoBehaviour
         {
             shootingTimer = shootingRate;
             Instantiate(bulletPrefab.gameObject, gunPoint.position, Quaternion.identity);
+            playerChannel.Stop();
+            playerChannel.clip = shoot;
+            playerChannel.Play();
         }
 
         if (controls.Player.Shoot.IsPressed())
@@ -106,5 +157,43 @@ public class PlayerMouvement : MonoBehaviour
     void Shoot(InputAction.CallbackContext context)
     {
         
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Ennemy") && invincibilityTimer < 0)
+        {
+            Debug.Log("took damage");
+            TakeDamage();
+        }
+    }
+
+    void TakeDamage()
+    {
+        currentHealth--;
+        invincibilityTimer = 1;
+        healthBar[currentHealth].color = Color.red;
+        playerChannel.Stop();
+        playerChannel.clip = hurt;
+        playerChannel.Play();
+        characterAnimator.SetBool("TakingDamage",true);
+        if (currentHealth == 0)
+        {
+            GameOver();
+        }
+    }
+
+    void GameOver()
+    {
+        coll.enabled = false;
+        isDead = true;
+        youDiedText.transform.DOMoveY(youDiedText.transform.position.y - 150, 0.5f);
+        restartButton.transform.DOMoveY(restartButton.transform.position.y + 100, 1f);
+    }
+
+    
+    public void Restart()
+    {
+        SceneManager.LoadScene("Oscar");
     }
 }

@@ -11,6 +11,8 @@ public class Salmon : MonoBehaviour
     public float currentSpinningSpeed = 0;
 
     public GameObject SalmonExplosion;
+
+    public GameObject trails;
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +27,7 @@ public class Salmon : MonoBehaviour
         {
             cooking = true;
             StartCoroutine(Cooking());
+            trails.SetActive(true);
 
         }
     }

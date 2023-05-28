@@ -25,6 +25,6 @@ public class Bread : BezierPathing
 
     private void OnDestroy()
     {
-        Instantiate(Gordon.instance.breadExplosionPrefab, Gordon.instance.explosionPos, Quaternion.identity);
+        Instantiate(Gordon.instance.breadExplosionPrefab, Gordon.instance.breadEndpoint.position, Quaternion.identity);
     }
 }
