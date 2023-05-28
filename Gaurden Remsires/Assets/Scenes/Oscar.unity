@@ -579,7 +579,7 @@ MonoBehaviour:
   saladWaves: 6
   delayBetweenSaladWaves: 1
   steakPrefab: {fileID: 7554705391036959113, guid: 4bf26b9fe60fff94db670b35d1a9dc5d, type: 3}
-  steakSpeed: 0.5
+  steakSpeed: 1
   steakAmount: 6
   steakArc: 80
   delayBetweenSteaks: 0.2
