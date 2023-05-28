@@ -43,7 +43,7 @@ public class BezierPathing : MonoBehaviour
                               3 *(1-timer) *timer * timer * p2 +
                               timer*timer*timer * p3;
             transform.position = nextPos;
-            yield return new WaitForEndOfFrame();
+            yield return new WaitForFixedUpdate();
         }
 
         timer = 0;

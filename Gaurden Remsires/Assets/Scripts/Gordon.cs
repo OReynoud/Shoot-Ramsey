@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
 using NaughtyAttributes;
+using Unity.VisualScripting;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -11,27 +12,72 @@ public class Gordon : MonoBehaviour
     public static Gordon instance;
     public Transform gun;
     private List<Vector3> positions = new List<Vector3>();
-    [BoxGroup("Gordon Movement")] public float moveSpeed;
-    [BoxGroup("Gordon Movement")] public Vector3 top1;
-    [BoxGroup("Gordon Movement")] public Vector3 top2;
-    [BoxGroup("Gordon Movement")] public Vector3 top3;
-    [BoxGroup("Gordon Movement")] public Vector3 middle1;
-    [BoxGroup("Gordon Movement")] public Vector3 middle2;
-    [BoxGroup("Gordon Movement")] public Vector3 middle3;
-    [BoxGroup("Gordon Movement")] public Vector3 bot1;
-    [BoxGroup("Gordon Movement")] public Vector3 bot2;
-    [BoxGroup("Gordon Movement")] public Vector3 bot3;
-    [BoxGroup("Plain Salad")] public GameObject saladPrefab;
-    [BoxGroup("Plain Salad")] public int saladAmount;
-    [BoxGroup("Plain Salad")] public float saladSpeed;
-    [BoxGroup("Plain Salad")] public float saladArc;
-    [BoxGroup("Plain Salad")] public float saladWaves;
-    [BoxGroup("Plain Salad")] public float delayBetweenSaladWaves;
-    [BoxGroup("R A W  Steak")] public GameObject steakPrefab;
-    [BoxGroup("R A W  Steak")] public float steakSpeed;
-    [BoxGroup("R A W  Steak")] public int steakAmount;
-    [BoxGroup("R A W  Steak")] public float steakArc;
-    [BoxGroup("R A W  Steak")] public float delayBetweenSteaks;
+    [Foldout("Gordon Movement")] public float moveSpeed;
+    [Foldout("Gordon Movement")] public Vector3 top1;
+    [Foldout("Gordon Movement")] public Vector3 top2;
+    [Foldout("Gordon Movement")] public Vector3 top3;
+    [Foldout("Gordon Movement")] public Vector3 middle1;
+    [Foldout("Gordon Movement")] public Vector3 middle2;
+    [Foldout("Gordon Movement")] public Vector3 middle3;
+    [Foldout("Gordon Movement")] public Vector3 bot1;
+    [Foldout("Gordon Movement")] public Vector3 bot2;
+    [Foldout("Gordon Movement")] public Vector3 bot3;
+    [Foldout("Plain Salad")] public GameObject saladPrefab;
+    [Foldout("Plain Salad")] public int saladAmount;
+    [Foldout("Plain Salad")] public float saladSpeed;
+    [Foldout("Plain Salad")] public float saladArc;
+    [Foldout("Plain Salad")] public float saladWaves;
+    [Foldout("Plain Salad")] public float delayBetweenSaladWaves;
+    [Foldout("R A W  Steak")] public GameObject steakPrefab;
+    [Foldout("R A W  Steak")] public float steakSpeed;
+    [Foldout("R A W  Steak")] public int steakAmount;
+    [Foldout("R A W  Steak")] public float steakArc;
+    [Foldout("R A W  Steak")] public float delayBetweenSteaks;
+    [Foldout("Plain Bread")] public GameObject breadPrefab;
+    [Foldout("Plain Bread")] public BezierCurves topBread;
+    [Foldout("Plain Bread")] public BezierCurves bottomBread;
+    [Foldout("Plain Bread")] public float breadSpeed;
+    [Foldout("Plain Bread")] public float breadSpawnTimer;
+    [Foldout("Plain Bread")] public Transform breadEndpoint;
+    [Foldout("Plain Bread")] public GameObject breadExplosionPrefab;
+    [Foldout("Plain Bread")] public float explosionStartRadius;
+    [Foldout("Plain Bread")] public float explosionEndRadius;
+    [Foldout("Plain Bread")] public float explosionTime;
+    [Foldout("Plain Bread")] public float explosionStayDuration;
+    [Foldout("Whole Bread")] public GameObject wholeBreadPrefab;
+    [Foldout("Whole Bread")] public float wholeBreadLoadingTime;
+    [Foldout("Whole Bread")] public float wholeBreadAimingSpeed;
+    [Foldout("Whole Bread")] public float wholeBreadAimingTime;
+    [Foldout("Whole Bread")] public float wholeBreadSpinningSpeed;
+    [Foldout("Whole Bread")] public float wholeBreadFinalScale;
+    [Foldout("Whole Bread")] public float wholeBreadShootingSpeed;
+    private GameObject currentWholeBread;
+    [HideInInspector] public Vector3 explosionPos;
+    [Foldout("rAaAw Salmon")] public GameObject salmonPrefab;
+    [Foldout("rAaAw Salmon")] public Transform[] salmonPositions;
+    [Foldout("rAaAw Salmon")] public int salmonAmount;
+    [Foldout("rAaAw Salmon")] public float salmonMovingTime;
+    [Foldout("rAaAw Salmon")] public float salmonCookingTime;
+    [Foldout("rAaAw Salmon")] public float salmonSpinningRateOverTime;
+    [Foldout("rAaAw Salmon")] public float salmonMaxSpinningRate;
+    [Foldout("rAaAw Salmon")] public bool LETHIMCOOK;
+    [Foldout("rAaAw Salmon")] public float salmonStartExplosionRadius;
+    [Foldout("rAaAw Salmon")] public float salmonEndExplosionRadius;
+    [Foldout("rAaAw Salmon")] public float salmonExplosionTime;
+    [Foldout("rAaAw Salmon")] public float salmonDecayTime;
+    [Foldout("Sound")] public AudioSource source;
+    [Foldout("Sound")] public AudioClip[] steakWarning;
+    [Foldout("Sound")] public AudioClip[] saladWarning;
+    [Foldout("Sound")] public AudioClip[] breadWarning;
+    [Foldout("Sound")] public AudioClip[] salmonWarning;
+    [Foldout("Sound")] public float delayForSound;
+    public int maxHealth;
+    public int currentHealth;
+    public bool aboveHalfHealth;
+    public float atkSpeed1;
+    public float atkSpeed2;
+    private float atkTimer;
+    public bool canAttack;
     
     // Start is called before the first frame update
     void Awake()
@@ -54,13 +100,45 @@ public class Gordon : MonoBehaviour
         positions.Add(bot1);
         positions.Add(bot2);
         positions.Add(bot3);
-        ThrowSalad();
+        currentHealth = maxHealth;
+        ThrowSalmon();
     }
 
     // Update is called once per frame
-    void Update()
+    void FixedUpdate()
     {
-        
+        if (currentHealth < maxHealth * 0.5f && aboveHalfHealth)
+        {
+            aboveHalfHealth = false;
+        }
+        if (atkTimer > 0 && canAttack)
+        {
+            atkTimer -= Time.fixedDeltaTime;
+        }
+        else if(canAttack)
+        {
+            canAttack = false;
+            var chosenAttack = Random.Range(1, 6);
+            switch (chosenAttack)
+            {
+                case 1:
+                    ThrowSteaks();
+                    break;
+                case 2:
+                    ThrowSalad();
+                    break;
+                case 3:
+                    ThrowPlainBread();
+                    break;
+                case 4:
+                    StartCoroutine(ThrowWholeBread());
+                    break;
+                case 5:
+                    ThrowSalmon();
+                    break;
+            }
+            atkTimer = aboveHalfHealth ? atkSpeed1 : atkSpeed2;
+        }
     }
 
     private void OnDrawGizmos()
@@ -91,6 +169,11 @@ public class Gordon : MonoBehaviour
     {
         transform.DOMove(posToMove, moveSpeed);
     }
+    IEnumerator EnableAttack(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        canAttack = true;
+    }
 
     #region Steaks
 
@@ -100,7 +183,6 @@ public class Gordon : MonoBehaviour
         transform.DOScale(transform.localScale, moveSpeed).OnComplete(() =>
         {
             var maxAngle = steakArc * 0.5f;
-            var minAngle = -maxAngle;
             for (int i = 0; i < steakAmount; i++)
             {
                 var angleSpacing = steakArc / steakAmount;
@@ -108,6 +190,10 @@ public class Gordon : MonoBehaviour
                 StartCoroutine(SpawnSteaks(delayBetweenSteaks * i, currentAngle));
             }
         });
+        StartCoroutine(EnableAttack(steakAmount * delayBetweenSteaks));
+        source.Stop();
+        source.clip = steakWarning[Random.Range(0, steakWarning.Length)];
+        source.PlayDelayed(delayForSound);
     }
 
     IEnumerator SpawnSteaks(float spawnDelay, float angle)
@@ -118,6 +204,8 @@ public class Gordon : MonoBehaviour
     }
 
     #endregion
+
+    #region Salad
 
     void ThrowSalad()
     {
@@ -130,6 +218,10 @@ public class Gordon : MonoBehaviour
                 StartCoroutine(SpawnSalad(delayBetweenSaladWaves* i));
             }
         });
+        StartCoroutine(EnableAttack(saladWaves * delayBetweenSaladWaves));
+        source.Stop();
+        source.clip = saladWarning[Random.Range(0, saladWarning.Length)];
+        source.PlayDelayed(delayForSound);
     }
     
     IEnumerator SpawnSalad(float spawnDelay)
@@ -137,6 +229,7 @@ public class Gordon : MonoBehaviour
         yield return new WaitForSeconds(spawnDelay);
         
         var maxAngle = saladArc * 0.5f;
+        var noise = Random.Range(-10, 11);
         for (int i = 0; i < saladAmount; i++)
         {
             var angleSpacing = saladArc / saladAmount;
@@ -144,8 +237,116 @@ public class Gordon : MonoBehaviour
             var relativePos = gun.position - PlayerMouvement.instance.transform.position;
             var normedRelative = relativePos.normalized;
             var relativeAngle = Mathf.Atan2(normedRelative.y, normedRelative.x) * Mathf.Rad2Deg;
-            gun.rotation = Quaternion.AngleAxis(relativeAngle + spacing,Vector3.forward);
+            gun.rotation = Quaternion.AngleAxis(relativeAngle + spacing + noise,Vector3.forward);
             Instantiate(saladPrefab, gun.position, gun.rotation);
         }
     }
+
+    #endregion
+
+    #region PlainBread
+
+    void ThrowPlainBread()
+    {
+        MoveToPos(positions[Random.Range(0,positions.Count)]);
+        transform.DOScale(transform.localScale, moveSpeed).OnComplete(() =>
+        {
+            StartCoroutine(SpawnBread());
+        });
+        
+    }
+
+    IEnumerator SpawnBread()
+    {
+        source.Stop();
+        source.clip = breadWarning[Random.Range(0, breadWarning.Length)];
+        source.PlayDelayed(delayForSound);
+        StartCoroutine(EnableAttack(0));
+        yield return new WaitForSeconds(breadSpawnTimer);
+        var currentBread = Instantiate(breadPrefab, gun.position, Quaternion.identity);
+        topBread = currentBread.transform.GetChild(0).gameObject.GetComponent<BezierCurves>();
+        bottomBread = currentBread.transform.GetChild(1).gameObject.GetComponent<BezierCurves>();
+        topBread.positions[3].position = breadEndpoint.position;
+        bottomBread.positions[3].position = breadEndpoint.position;
+            
+        topBread.positions[1].position = new Vector3(
+            topBread.positions[0].position.x,
+            topBread.positions[0].position.y + 6, 
+            0);
+            
+        topBread.positions[2].position = new Vector3(
+            topBread.positions[3].position.x + 5,
+            topBread.positions[3].position.y + 4, 
+            0);
+            
+        bottomBread.positions[1].position = new Vector3(
+            bottomBread.positions[0].position.x,
+            bottomBread.positions[0].position.y - 6, 
+            0);
+            
+        bottomBread.positions[2].position = new Vector3(
+            bottomBread.positions[3].position.x + 5,
+            bottomBread.positions[3].position.y - 4, 
+            0);
+        yield return new WaitUntil(() => !topBread);
+        Debug.Log("No more bread");
+        Instantiate(breadExplosionPrefab, breadEndpoint.position, Quaternion.identity);
+    }
+
+    #endregion
+
+    #region WholeBread
+
+    IEnumerator ThrowWholeBread()
+    {
+        MoveToPos(positions[Random.Range(0,positions.Count)]);
+        transform.DOScale(transform.localScale, moveSpeed);
+        source.Stop();
+        source.clip = breadWarning[Random.Range(0, breadWarning.Length)];
+        source.PlayDelayed(delayForSound);
+        yield return new WaitForSeconds(moveSpeed);
+        StartCoroutine(EnableAttack(wholeBreadLoadingTime));
+        currentWholeBread = Instantiate(wholeBreadPrefab, gun.position + Vector3.up, Quaternion.identity);
+        currentWholeBread.transform.DOMove(new Vector3(currentWholeBread.transform.position.x, 4, 0),wholeBreadLoadingTime);
+        
+        var bottom = Instantiate(wholeBreadPrefab, gun.position - Vector3.up, Quaternion.identity);
+        bottom.transform.DOMove(new Vector3(bottom.transform.position.x,  - 4, 0),wholeBreadLoadingTime);
+        
+    }
+
+    #endregion
+
+    #region Salmon
+
+    void ThrowSalmon()
+    {
+        MoveToPos(positions[Random.Range(0,positions.Count)]);
+        LETHIMCOOK = false;
+        List<Transform> availablePositions = new List<Transform>();
+        availablePositions.AddRange(salmonPositions);
+        for (int i = 0; i < salmonAmount; i++)
+        {
+            var chosenIndex = Random.Range(0, availablePositions.Count);
+            StartCoroutine(SpawnSalmon(availablePositions[chosenIndex]));
+            availablePositions.RemoveAt(chosenIndex);
+        }
+    }
+
+    IEnumerator SpawnSalmon(Transform location)
+    {
+        source.Stop();
+        source.clip = salmonWarning[Random.Range(0, salmonWarning.Length)];
+        source.PlayDelayed(delayForSound);
+        yield return new WaitForSeconds(moveSpeed);
+        StartCoroutine(EnableAttack(salmonMovingTime));
+        var currentSalmon = Instantiate(salmonPrefab, gun.position, Quaternion.identity);
+        currentSalmon.transform.DOMove(location.position, salmonMovingTime);
+        yield return new WaitForSeconds(salmonMovingTime);
+        LETHIMCOOK = true;
+
+    }
+
+    #endregion
+    
+    
 }
